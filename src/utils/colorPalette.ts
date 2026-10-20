@@ -113,6 +113,9 @@ export const COOLORS_PALETTES: Record<Exclude<PaletteType, 'custom'>, Omit<Palet
   },
 };
 
+// 아무 것도 저장 안 했을 때 쓰는 팔레트
+export const DEFAULT_PALETTE_TYPE: PaletteType = 'halloween';
+
 // Storage Key
 export const PALETTE_STORAGE_KEY = 'timekeeper-palette-settings';
 
@@ -134,7 +137,7 @@ export const loadPaletteSettings = (): PaletteSettings => {
   } catch {
     // ignore
   }
-  return { type: 'navy-orange' };
+  return { type: DEFAULT_PALETTE_TYPE };
 };
 
 // 현재 팔레트 색상 배열 가져오기

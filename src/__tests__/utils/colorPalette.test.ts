@@ -176,16 +176,16 @@ describe('colorPalette', () => {
       expect(loaded.type).toBe('ocean-blue');
     });
 
-    it('저장된 설정이 없으면 기본값(navy-orange)을 반환한다', () => {
+    it('저장된 설정이 없으면 기본값(halloween)을 반환한다', () => {
       const loaded = loadPaletteSettings();
-      expect(loaded.type).toBe('navy-orange');
+      expect(loaded.type).toBe('halloween');
     });
 
     it('잘못된 JSON이 저장된 경우 기본값을 반환한다', () => {
       localStorage.setItem(PALETTE_STORAGE_KEY, 'invalid-json');
 
       const loaded = loadPaletteSettings();
-      expect(loaded.type).toBe('navy-orange');
+      expect(loaded.type).toBe('halloween');
     });
 
     it('localStorage에 올바른 키로 저장된다', () => {

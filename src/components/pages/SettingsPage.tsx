@@ -67,6 +67,7 @@ import {
   loadPaletteSettings,
   savePaletteSettings,
   PALETTE_STORAGE_KEY,
+  DEFAULT_PALETTE_TYPE,
   getPaletteList,
   getPalette,
   getAdjustedPalette,
@@ -280,7 +281,7 @@ const SettingsPage: React.FC = () => {
   const [screen_scale, setScreenScale] = useState(DEFAULT_SETTINGS.screenScale);
 
   // 컬러 팔레트 설정
-  const [palette_type, setPaletteType] = useState<PaletteType>('navy-orange');
+  const [palette_type, setPaletteType] = useState<PaletteType>(DEFAULT_PALETTE_TYPE);
   
   // 커스텀 팔레트 상태
   const [custom_colors, setCustomColors] = useState<string[]>([]);
