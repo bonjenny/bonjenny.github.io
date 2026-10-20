@@ -15,6 +15,8 @@ const TimeManagement = lazy(() => import('./components/pages/TimeManagement'));
 const SettingsPage = lazy(() => import('./components/pages/SettingsPage'));
 const GuidePage = lazy(() => import('./components/pages/GuidePage'));
 import NewTaskModal from './components/modal/NewTaskModal';
+import HalloweenEffects from './components/HalloweenEffects';
+import { useIsHalloween } from './components/HalloweenEggs';
 import { Box, Typography, IconButton, Tooltip, useMediaQuery, Snackbar, CircularProgress } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -25,6 +27,9 @@ import { applyThemeColors, applyPaletteHighlight } from './styles/tokens';
 import { loadPaletteSettings, getPalette, getAdjustedColor } from './utils/colorPalette';
 import { getItem } from './utils/storage';
 import { useScheduledTaskWatcher } from './hooks/useScheduledTaskWatcher';
+
+const HALLOWEEN_LIGHT_PRIMARY = '#e8590c'; // 호박 주황 (흰 글씨가 읽히는 진하기)
+const HALLOWEEN_LIGHT_ACCENT = '#7c3aed';
 import { checkAndRunAutoBackup } from './utils/autoBackup';
 import MigrationNoticeDialog from './components/common/MigrationNoticeDialog';
 import GithubReturnNoticeDialog from './components/common/GithubReturnNoticeDialog';
@@ -177,21 +182,27 @@ function App() {
     }
   }, [setThemeConfig]);
 
+  // 할로윈 라이트모드는 호박 주황이 메인 (다크모드는 팔레트대로 보라)
+  const is_halloween = useIsHalloween();
+  const halloween_light = is_halloween && !themeConfig.isDark;
+  const primary_color = halloween_light ? HALLOWEEN_LIGHT_PRIMARY : themeConfig.primaryColor;
+  const accent_color = halloween_light ? HALLOWEEN_LIGHT_ACCENT : themeConfig.accentColor;
+
   // 동적 테마 생성 (다크모드일 때 색상 보정 적용)
   const currentTheme = useMemo(() => {
-    const adjustedPrimary = getAdjustedColor(themeConfig.primaryColor, themeConfig.isDark, 45);
-    const adjustedAccent = getAdjustedColor(themeConfig.accentColor, themeConfig.isDark, 50);
+    const adjustedPrimary = getAdjustedColor(primary_color, themeConfig.isDark, 45);
+    const adjustedAccent = getAdjustedColor(accent_color, themeConfig.isDark, 50);
     return createAppTheme(adjustedPrimary, adjustedAccent, themeConfig.isDark);
-  }, [themeConfig.primaryColor, themeConfig.accentColor, themeConfig.isDark]);
+  }, [primary_color, accent_color, themeConfig.isDark]);
 
   // CSS 변수 업데이트
   useEffect(() => {
     applyThemeColors({ 
-      primary: themeConfig.primaryColor, 
-      accent: themeConfig.accentColor, 
+      primary: primary_color, 
+      accent: accent_color, 
       isDark: themeConfig.isDark 
     });
-  }, [themeConfig.primaryColor, themeConfig.accentColor, themeConfig.isDark]);
+  }, [primary_color, accent_color, themeConfig.isDark]);
 
   // 페이지 변경 핸들러
   const handlePageChange = useCallback((page: PageType) => {
@@ -306,7 +317,8 @@ function App() {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: is_mobile ? 'minmax(0, 1fr)' : '280px 1fr',
+        // 왼쪽 칸은 프리셋 패널 폭을 따라간다 (패널 모서리로 크기 조절 시 오른쪽이 그만큼 늘고 준다)
+        gridTemplateColumns: is_mobile ? 'minmax(0, 1fr)' : 'auto minmax(0, 1fr)',
         gridTemplateRows: is_mobile ? 'auto auto auto auto auto' : 'auto auto auto auto',
         gap: is_mobile ? 1.5 : 2,
         minHeight: is_mobile ? undefined : 'calc(100vh - 180px)',
@@ -482,6 +494,9 @@ function App() {
         </Layout>
       </Box>
       
+      {/* 할로윈 팔레트일 때만: 유령 장식 + 빈 곳 5번 클릭 이스터에그 */}
+      <HalloweenEffects />
+
       {/* F8 새 작업 추가 모달 */}
       <NewTaskModal
         open={is_new_task_modal_open}

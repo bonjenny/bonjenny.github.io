@@ -11,6 +11,8 @@ export type PaletteType =
   | 'pink-purple' 
   | 'sky-sunset' 
   | 'forest-green' 
+  | 'pink-sky'
+  | 'halloween'
   | 'custom';
 
 // 팔레트 설정 인터페이스
@@ -93,6 +95,14 @@ export const COOLORS_PALETTES: Record<Exclude<PaletteType, 'custom'>, Omit<Palet
     colors: ['#2d5a45', '#20796c', '#3a8a6a', '#6b8e23', '#228b22', '#2e8b57', '#4a9a7a', '#556b2f', '#6b9a52', '#3d6b4a'],
     primary: '#2d5a45',
     accent: '#2e8b57',
+  },
+  // 할로윈 (호박 주황 + 마녀 보라 + 독약 초록). 고르면 유령이 날아다닌다 (HalloweenEffects)
+  'halloween': {
+    name: '할로윈 🎃',
+    // 호박 · 마녀 보라 · 촛불 · 물약 초록 · 핏빛 장미 · 한밤 남색 · 불씨 · 라일락 · 이끼 · 캐러멜
+    colors: ['#ff7a1a', '#7c3aed', '#f5b82e', '#22a06b', '#d6336c', '#4c3bcf', '#e2551f', '#a463f2', '#8fb339', '#b8621b'],
+    primary: '#7c3aed',
+    accent: '#ff7a1a',
   },
   // 핑크 스카이 (라벤더 → 스카이블루 → 핑크 → 딥블루 → 청록 → 베이지 그라데이션)
   'pink-sky': {
