@@ -1,0 +1,1 @@
+import{D as o}from"./index-BY9_eltA-_rnml_NG.js";import"./index-tr9Wmhor.js";var t,e=o;t=e.createRoot,e.hydrateRoot;const c=Object.freeze(Object.defineProperty({__proto__:null,get createRoot(){return t}},Symbol.toStringTag,{value:"Module"}));export{c};

@@ -46,6 +46,12 @@ import {
   simpleHash,
 } from '../../services/feedbackService';
 import { getAdminPassword } from '../../utils/env';
+import { isGithubPagesApp } from '../../utils/migrationNotice';
+
+// bonjenny.github.io 에서는 릴리즈 노트만 읽기 전용으로 보여준다 (글쓰기·댓글·수정·삭제 막음)
+const READ_ONLY = isGithubPagesApp();
+const BOARD_TITLE = READ_ONLY ? '릴리즈 노트' : '건의사항';
+const BOARD_DESC = READ_ONLY ? '업데이트 내역을 확인하세요.' : '앱 개선 아이디어나 버그 리포트를 남겨주세요.';
 
 // 관리자 비밀번호 해시 (환경변수에서 로드)
 const ADMIN_PASSWORD_HASH = simpleHash(getAdminPassword());
@@ -186,7 +192,7 @@ const FeedbackBoard: React.FC = () => {
   const loadPosts = useCallback(async () => {
     setLoading(true);
     const data = await fetchPosts();
-    setPosts(data);
+    setPosts(READ_ONLY ? data.filter((p) => p.category === 'release') : data);
     setLoading(false);
   }, []);
 
@@ -226,6 +232,7 @@ const FeedbackBoard: React.FC = () => {
 
   // 게시글 우클릭 (관리자 상태 변경)
   const handlePostContextMenu = (post: FeedbackPost, e: React.MouseEvent) => {
+    if (READ_ONLY) return;
     e.preventDefault(); // 기본 컨텍스트 메뉴 방지
     e.stopPropagation();
     setSelectedPost(post);
@@ -555,22 +562,22 @@ const FeedbackBoard: React.FC = () => {
         <Box sx={{ mb: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography component="h2" sx={{ fontSize: 17, fontWeight: 700, flex: 1, minWidth: 0 }}>
-              건의사항
+              {BOARD_TITLE}
             </Typography>
             <IconButton onClick={loadPosts} disabled={loading} title="새로고침" sx={{ width: 44, height: 44 }}>
               <RefreshIcon />
             </IconButton>
-            <Button
+            {!READ_ONLY && <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleWriteClick}
               sx={{ minHeight: 44, whiteSpace: 'nowrap', bgcolor: 'var(--primary-color)', color: 'white', '&:hover': { bgcolor: 'var(--accent-color)' } }}
             >
               글쓰기
-            </Button>
+            </Button>}
           </Box>
           <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
-            앱 개선 아이디어나 버그 리포트를 남겨주세요.
+            {BOARD_DESC}
           </Typography>
         </Box>
       ) : (
@@ -586,24 +593,24 @@ const FeedbackBoard: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-              건의사항
+              {BOARD_TITLE}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              앱 개선 아이디어나 버그 리포트를 남겨주세요.
+              {BOARD_DESC}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <IconButton onClick={loadPosts} disabled={loading} title="새로고침">
               <RefreshIcon />
             </IconButton>
-            <Button
+            {!READ_ONLY && <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleWriteClick}
               sx={{ bgcolor: 'var(--primary-color)', color: 'white', '&:hover': { bgcolor: 'var(--accent-color)' } }}
             >
               글쓰기
-            </Button>
+            </Button>}
           </Box>
         </Box>
       </Paper>
@@ -668,9 +675,9 @@ const FeedbackBoard: React.FC = () => {
             <Typography variant="body1" sx={{ mb: 1 }}>
               등록된 게시글이 없습니다.
             </Typography>
-            <Typography variant="body2">
+            {!READ_ONLY && <Typography variant="body2">
               첫 번째 건의사항을 작성해보세요!
-            </Typography>
+            </Typography>}
           </Box>
         ) : (
           <List disablePadding>
@@ -755,14 +762,14 @@ const FeedbackBoard: React.FC = () => {
               </Typography>
             </Box>
             {/* 모바일: 아이콘 버튼 터치 영역 40px */}
-            <Box sx={{ display: 'flex', gap: { xs: 0, md: 1 }, flexShrink: 0, mr: { xs: -1, md: 0 }, mt: { xs: -1, md: 0 }, '& .MuiIconButton-root': { p: { xs: '10px', md: '5px' } } }}>
+            {!READ_ONLY && <Box sx={{ display: 'flex', gap: { xs: 0, md: 1 }, flexShrink: 0, mr: { xs: -1, md: 0 }, mt: { xs: -1, md: 0 }, '& .MuiIconButton-root': { p: { xs: '10px', md: '5px' } } }}>
               <IconButton size="small" onClick={handleEditClick} disabled={saving}>
                 <EditIcon fontSize="small" />
               </IconButton>
               <IconButton size="small" onClick={handleDeleteClick} disabled={saving} sx={{ color: '#ef4444' }}>
                 <DeleteIcon fontSize="small" />
               </IconButton>
-            </Box>
+            </Box>}
           </Box>
 
           <Divider sx={{ my: 2 }} />
@@ -838,14 +845,14 @@ const FeedbackBoard: React.FC = () => {
                               <Typography variant="caption" color="text.secondary">
                                 {formatDate(comment.created_at)}
                               </Typography>
-                              <IconButton
+                              {!READ_ONLY && <IconButton
                                 size="small"
                                 onClick={() => handleCommentDeleteClick(comment.id)}
                                 disabled={saving}
                                 sx={{ color: 'text.secondary', p: { xs: 1.5, md: 0.5 }, m: { xs: -1, md: 0 } }}
                               >
                                 <DeleteIcon sx={{ fontSize: 16 }} />
-                              </IconButton>
+                              </IconButton>}
                             </Box>
                           </Box>
                         }
@@ -864,7 +871,7 @@ const FeedbackBoard: React.FC = () => {
 
           {/* 댓글 작성 폼 */}
           {/* 모바일: 스위치 한 줄 → 닉네임·비밀번호(폭 되면 나란히) → 입력칸 → 전체 폭 등록 버튼 */}
-          <Paper
+          {!READ_ONLY && <Paper
             variant="outlined"
             sx={{ p: 2, borderRadius: { xs: 2, md: 1 }, borderColor: 'var(--border-color)', bgcolor: 'var(--bg-tertiary)' }}
           >
@@ -935,7 +942,7 @@ const FeedbackBoard: React.FC = () => {
                 {saving ? <CircularProgress size={20} color="inherit" /> : (is_admin_comment ? '관리자 답글 등록' : '댓글 등록')}
               </Button>
             </Box>
-          </Paper>
+          </Paper>}
         </Box>
       </>
     );
@@ -1057,7 +1064,7 @@ const FeedbackBoard: React.FC = () => {
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
       {view === 'list' && renderListView()}
       {view === 'detail' && renderDetailView()}
-      {view === 'write' && renderWriteView()}
+      {view === 'write' && !READ_ONLY && renderWriteView()}
 
       {/* 비밀번호 확인 모달 */}
       <Dialog 

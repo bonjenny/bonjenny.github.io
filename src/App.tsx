@@ -24,8 +24,12 @@ import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useTimerStore } from './store/useTimerStore';
 import { applyThemeColors, applyPaletteHighlight } from './styles/tokens';
-import { loadPaletteSettings, getPalette, getAdjustedColor } from './utils/colorPalette';
-import { getItem } from './utils/storage';
+import { loadPaletteSettings, getPalette, getAdjustedColor, PALETTE_STORAGE_KEY } from './utils/colorPalette';
+import { getItem, setItem } from './utils/storage';
+import { isGithubPagesApp } from './utils/migrationNotice';
+
+// github.io 첫 방문(팔레트 미지정)은 다크모드로 시작. 한 번만 적용해서 이후 사용자가 바꾼 모드는 존중한다
+const GH_DARK_DEFAULT_KEY = 'tk-gh-dark-default-applied';
 import { useScheduledTaskWatcher } from './hooks/useScheduledTaskWatcher';
 
 const HALLOWEEN_LIGHT_PRIMARY = '#e8590c'; // 호박 주황 (흰 글씨가 읽히는 진하기)
@@ -173,6 +177,11 @@ function App() {
         }
       }
       
+      if (isGithubPagesApp() && !getItem(PALETTE_STORAGE_KEY) && !getItem(GH_DARK_DEFAULT_KEY)) {
+        setThemeConfig({ isDark: true });
+        setItem(GH_DARK_DEFAULT_KEY, '1');
+      }
+
       // 컬러 팔레트 적용
       const palette_settings = loadPaletteSettings();
       const palette = getPalette(palette_settings);

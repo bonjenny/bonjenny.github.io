@@ -20,6 +20,10 @@ import { recordVisit, getTodayVisitors, VisitorRecord } from '../services/visito
 import { getAdminPassword } from '../utils/env';
 import { simpleHash } from '../services/feedbackService';
 import { HALLOWEEN_MENU_LABELS, useIsHalloween } from './HalloweenEggs';
+import { isGithubPagesApp } from '../utils/migrationNotice';
+
+// github.io 에서는 Q&A 대신 릴리즈 노트만 (FeedbackBoard 읽기 전용)
+const QNA_LABEL = isGithubPagesApp() ? '릴리즈 노트' : 'Q&A';
 
 const SETTINGS_STORAGE_KEY = 'timekeeper-settings';
 
@@ -247,7 +251,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
             <ListItemIcon sx={{ minWidth: 40 }}>
               <ForumIcon sx={{ fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText primary="Q&A 게시판" primaryTypographyProps={{ fontSize: 16, fontWeight: 500 }} />
+            <ListItemText primary={isGithubPagesApp() ? '릴리즈 노트' : 'Q&A 게시판'} primaryTypographyProps={{ fontSize: 16, fontWeight: 500 }} />
           </ListItemButton>
         </List>
         <Divider />
@@ -368,7 +372,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
             }
           }}
         >
-          Q&A
+          {QNA_LABEL}
         </Button>
       </Box>
 
